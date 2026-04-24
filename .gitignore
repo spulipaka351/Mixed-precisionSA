@@ -1,0 +1,23 @@
+# Scala/SBT
+target/
+project/project/
+project/target/
+bin/
+lib_managed/
+src_managed/
+.history
+.sbt_home
+
+# Chisel/FIRRTL intermediate files
+test_run_dir/
+*.anno.json
+*.fir
+*.v
+*.sv
+*.log
+
+# IDEs
+.idea/
+.vscode/
+.bsp/
+.metals/

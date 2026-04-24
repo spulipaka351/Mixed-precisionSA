@@ -1,10 +1,9 @@
-package vectorPE
-
+package Mixed
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 import scala.util.Random
-
+import Mixed.mixedPE
 // ─────────────────────────────────────────────────────────────────
 //  Software reference model  (truncation + flush-to-zero, matching HW)
 // ─────────────────────────────────────────────────────────────────

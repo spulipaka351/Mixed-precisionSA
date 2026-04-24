@@ -1,5 +1,5 @@
-// FILE: src/main/scala/vectorPE/mixedPE.scala
-package vectorPE
+
+package Mixed
 
 import chisel3._
 import chisel3.util._
@@ -152,7 +152,7 @@ class mixedPE extends Module {
     norm_exp := common_exp
   } .otherwise {
     val leading_one = PriorityEncoder(Reverse(sum_man(22, 0)))
-    val shift_amt   = 23.U - leading_one
+    val shift_amt   = leading_one + 1.U
     norm_man := (sum_man(22, 0) << shift_amt)(22, 0)
     when(shift_amt < common_exp) {
       norm_exp := common_exp - shift_amt

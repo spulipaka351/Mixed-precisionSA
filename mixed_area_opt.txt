@@ -1,0 +1,100 @@
+
+3. Printing statistics.
+
+=== OptPE ===
+
+   Number of wires:               2339
+   Number of wire bits:           2999
+   Number of public wires:          44
+   Number of public wire bits:     674
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               2389
+     $_ANDNOT_                     448
+     $_AND_                        119
+     $_AOI3_                       132
+     $_DFF_P_                       32
+     $_MUX_                        413
+     $_NAND_                        56
+     $_NOR_                        131
+     $_NOT_                        130
+     $_OAI3_                       108
+     $_ORNOT_                       64
+     $_OR_                         209
+     $_XNOR_                       144
+     $_XOR_                        403
+
+=== SA ===
+
+   Number of wires:               1231
+   Number of wire bits:           4791
+   Number of public wires:         189
+   Number of public wire bits:    3253
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               2066
+     $_ANDNOT_                     512
+     $_DFF_P_                      512
+     $_MUX_                        512
+     $_NAND_                       512
+     $_NOT_                          2
+     OptPE                          16
+
+=== SkewBuffers ===
+
+   Number of wires:                168
+   Number of wire bits:            468
+   Number of public wires:          18
+   Number of public wire bits:     228
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                352
+     $_ANDNOT_                     160
+     $_DFF_P_                       96
+     $_MUX_                         96
+
+=== Top ===
+
+   Number of wires:                 82
+   Number of wire bits:           1554
+   Number of public wires:          82
+   Number of public wire bits:    1554
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  3
+     SA                              1
+     SkewBuffers                     2
+
+=== design hierarchy ===
+
+   Top                               1
+     SA                              1
+       OptPE                        16
+     SkewBuffers                     2
+
+   Number of wires:              39073
+   Number of wire bits:          55265
+   Number of public wires:        1011
+   Number of public wire bits:   16047
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              40978
+     $_ANDNOT_                    8000
+     $_AND_                       1904
+     $_AOI3_                      2112
+     $_DFF_P_                     1216
+     $_MUX_                       7312
+     $_NAND_                      1408
+     $_NOR_                       2096
+     $_NOT_                       2082
+     $_OAI3_                      1728
+     $_ORNOT_                     1024
+     $_OR_                        3344
+     $_XNOR_                      2304
+     $_XOR_                       6448
+

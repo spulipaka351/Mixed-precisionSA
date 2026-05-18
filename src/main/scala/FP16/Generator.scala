@@ -24,10 +24,10 @@ object ElaborateMixedSA extends App {
 
 
 object ElaborateTopSA extends App {
-  println("Generating Verilog for TopMixedSA (4x4)...")
-  // You can change the 4, 4 parameters to whatever grid size you need
+  println("Generating Verilog for TopMixedSA (64x64)...")
+  // You can change the 64, 64 parameters to whatever grid size you need
   (new chisel3.stage.ChiselStage).emitVerilog(
-    new TopSAFP(4, 4,16), 
+    new TopSAFP(64, 64,16), 
     Array("--target-dir", "FP16")
   )
   println("Done! Check the 'verilog_output' folder.")

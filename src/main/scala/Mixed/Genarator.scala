@@ -23,12 +23,12 @@ object ElaborateMixedSA extends App {
 
 
 object ElaborateTopSA extends App {
-  println("Generating Verilog for TopMixedSA (4x4)...")
-  // You can change the 4, 4 parameters to whatever grid size you need
+  println("Generating Verilog for TopMixedSA (64x64)...")
+  // You can change the 64, 64 parameters to whatever grid size you need
   (new chisel3.stage.ChiselStage).emitVerilog(
-    new TopMixedSA(4, 4), 
-    Array("--target-dir", "mixed_opt")
+    new TopMixedSA(64, 64), 
+    Array("--target-dir", "mixed_opt_64")
   )
-  println("Done! Check the 'mixed_opt' folder.")
+  println("Done! Check the 'mixed_opt_64' folder.")
 }
 

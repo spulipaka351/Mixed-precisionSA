@@ -1,0 +1,101 @@
+
+3. Printing statistics.
+
+=== PE ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     1713 wires
+     1896 wire bits
+       12 public wires
+      195 public wire bits
+        8 ports
+       99 port bits
+     1797 cells
+      495   $_ANDNOT_
+      209   $_AND_
+      110   $_NAND_
+       69   $_NOR_
+       38   $_NOT_
+       37   $_ORNOT_
+      207   $_OR_
+       64   $_SDFF_PP0_
+      123   $_XNOR_
+      445   $_XOR_
+
+=== SA ===
+
+        +----------Local Count, excluding submodules.
+        | 
+    36995 wires
+   538627 wire bits
+    36995 public wires
+   538627 public wire bits
+     4227 ports
+   133123 port bits
+     4096 submodules
+     4096   PE
+
+=== SkewBuffers ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     3156 wires
+    35316 wire bits
+     2148 public wires
+    34308 public wire bits
+      132 ports
+     2052 port bits
+    33280 cells
+     1024   $_ANDNOT_
+    32256   $_SDFFE_PP0P_
+
+=== TopSA ===
+
+        +----------Local Count, excluding submodules.
+        | 
+     8719 wires
+   272399 wire bits
+     8719 public wires
+   272399 public wire bits
+     4228 ports
+   135172 port bits
+        3 submodules
+        1   SA
+        2   SkewBuffers
+
+=== design hierarchy ===
+
+        +----------Count including submodules.
+        | 
+  7427072 TopSA
+     1797   PE
+    33280 SkewBuffers
+
+        +----------Count including submodules.
+        | 
+  7068474 wires
+  8647674 wire bits
+    99162 public wires
+  1678362 public wire bits
+    41487 ports
+   677903 port bits
+        - memories
+        - memory bits
+        - processes
+  7427072 cells
+  2029568   $_ANDNOT_
+   856064   $_AND_
+   450560   $_NAND_
+   282624   $_NOR_
+   155648   $_NOT_
+   151552   $_ORNOT_
+   847872   $_OR_
+    64512   $_SDFFE_PP0P_
+   262144   $_SDFF_PP0_
+   503808   $_XNOR_
+  1822720   $_XOR_
+        3 submodules
+        1   SA
+        2   SkewBuffers
+

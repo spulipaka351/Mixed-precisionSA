@@ -7,7 +7,7 @@ object ElaborateTopSA extends App {
   // You can change the 4, 4 parameters to whatever grid size you need
   (new chisel3.stage.ChiselStage).emitVerilog(
     new Top(4, 4), 
-    Array("--target-dir", "mixed_opt")
+    Array("--target-dir", "OPT_PE_V2")
   )
   println("Done! Check the 'verilog_output' folder.")
 }

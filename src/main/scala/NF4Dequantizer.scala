@@ -6,6 +6,7 @@ import chisel3.util._
 class NF4Dequantizer extends Module {
     val io = IO(new Bundle{
         val in = Input(UInt(32.W))
+        val scale = Input(UInt(32.W))
         val out = Output(UInt(32.W))
     })
     
@@ -16,6 +17,6 @@ class NF4Dequantizer extends Module {
         12.U(32.W), 13.U(32.W), 14.U(32.W), 15.U(32.W)
     ))
     
-    io.out := LookupTable(io.in)
+    io.out := LookupTable(io.in) * io.scale
     
     }

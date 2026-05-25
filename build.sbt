@@ -13,7 +13,14 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("releases")
 )
 
-libraryDependencies += "edu.berkeley.cs" %% "chisel3" % "3.5.6"
+// Single consistent version set — remove the duplicate 3.6.0 block
+libraryDependencies += "edu.berkeley.cs" %% "chisel3"    % "3.5.6"
 libraryDependencies += "edu.berkeley.cs" %% "chiseltest" % "0.5.6" % "test"
 
-addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % "3.5.6" cross CrossVersion.full)
+addCompilerPlugin(
+  "edu.berkeley.cs" % "chisel3-plugin" % "3.5.6" cross CrossVersion.full
+)
+
+// Heap for compilation
+javaOptions ++= Seq("-Xmx8g", "-Xms2g", "-XX:+UseG1GC")
+fork := true   // REQUIRED — javaOptions only apply when forked

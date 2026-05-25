@@ -41,9 +41,21 @@ class PipePE extends Module {
   val hidden_b     = exp_b.orR
   val fp_man_a_11b = Cat(hidden_a, man_a)
   val fp_man_b_11b = Cat(hidden_b, man_b)
+  val toggle       = RegInit(false.B)
+  when(io.mode){
+    toggle := ~toggle
+  }.otherwise{
+    toggle := false.B
+  }
 
-  val int_a = io.in_a(7, 0).asSInt
-  val int_b = io.in_b(7, 0).asSInt
+  val high_int_a = io.in_a(15, 8).asSInt
+  val low_int_a  = io.in_a(7, 0).asSInt
+  val high_int_b = io.in_b(15, 8).asSInt
+  val low_int_b  = io.in_b(7, 0).asSInt
+
+  val int_a = Mux(toggle, high_int_a, low_int_a)
+  val int_b = Mux(toggle, high_int_b, low_int_b)
+ 
 
   val shared_in_a = Mux(io.mode,
                         Cat(0.U(1.W), fp_man_a_11b).asSInt,

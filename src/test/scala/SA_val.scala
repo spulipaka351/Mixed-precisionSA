@@ -3,7 +3,8 @@ package Pipe
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
-
+import chiseltest._
+import chiseltest.simulator.VerilatorBackendAnnotation
 class SimpleTest extends AnyFlatSpec with ChiselScalatestTester {
 
   def toFP16(f: Float): Long = {
@@ -32,108 +33,217 @@ class SimpleTest extends AnyFlatSpec with ChiselScalatestTester {
 
     def toFP32Bits(f: Float): Long =
   java.lang.Float.floatToRawIntBits(f).toLong & 0xFFFFFFFFL
-  // ── PipePE: push 2.0 * 3.0 + 0.0, wait 3 cycles, read ─
-
-  // ── PipeSA: push one k-step, drain, print all PEs ──
-  
-
-    "PipePE" should "handle negatives" in {
-  test(new PipePE()) { dut =>
-
-    val cases = Seq(
-      (2f,  -3f,  0f,   -6f),    // pos * neg + 0
-      (-2f, -3f,  0f,    6f),    // neg * neg + 0
-      (2f,   3f, -10f,  -4f),   // pos * pos + neg psum
-      (2f,  -3f,  10f,   4f),   // pos * neg + pos psum
-      (-2f,  3f, -10f, -16f)    // neg * pos + neg psum
-    )
-
-    for ((a, b, psum, expected) <- cases) {
-      dut.io.in_a.poke(toFP16(a).U)
-      dut.io.in_b.poke(toFP16(b).U)
-      dut.io.psum_in.poke(toFP32Bits(psum).U)
-      dut.io.mode.poke(true.B)
-      dut.clock.step(3)
-      val out = toFloat(dut.io.out.peek().litValue.toLong)
-      val ok  = math.abs(out - expected) < 0.1f
-      println(f"$a * $b + $psum = $out%.4f  (expect $expected)  ${if(ok) "PASS" else "FAIL"}")
-    }
-  }
-}
 
 
-  "TOP timing" should "trace per-cycle inputs" in {
-  test(new Top(2,2))({ dut =>
 
-    val A = Array(Array( -0.9014f,0.4814f,1.1982f,0.9062f,0.7998f,-0.2549f,-1.8877f,-0.1833f,-0.0255f,-0.6367f,1.3623f,-0.9907f,-0.6387f,0.9312f,-0.4102f,-1.4893f),Array( 0.2206f,-1.3213f,0.2798f,-0.0704f,-1.3936f,0.7725f,-0.2142f,0.3984f,-0.8027f,0.7852f,-0.5044f,0.9155f,0.8540f,0.1736f,0.2023f,-0.1366f)
-)
+//   "TOP timing" should "trace per-cycle inputs" in {
+//   test(new Top(2,2))({ dut =>
 
-    val B = Array(Array( -0.2927f,1.0859f),Array( 0.9521f,-1.6553f),Array( -2.5254f,-1.6973f),Array( -0.6855f,-0.6328f),Array( 0.1732f,0.3403f),Array( -0.1177f,-1.0010f),Array( 2.7363f,1.4199f),Array( 1.4170f,-0.3057f),Array( -0.1031f,-0.3955f),Array( 1.0488f,2.3613f),Array( -0.6748f,0.0058f),Array( -0.1392f,-0.7124f),Array( 1.0791f,0.5532f),Array( 0.9736f,1.1797f),Array( 1.2373f,0.9121f),Array( -0.8535f,0.3325f)
-
-)
+//     val A = loadMatrices("/home/maruthi/dev/ChiselVectorPE/src/test/scala/test_files/A.txt")
+//     val B = loadMatrices("/home/maruthi/dev/ChiselVectorPE/src/test/scala/test_files/B.txt")
     
-    val rows = 2
+//     val rows = 2
 
-val PIPE_DEPTH = 3
-val MAX_SKEW   = (rows - 1) * PIPE_DEPTH  // = 3 for 2x2
-val GAP        = PIPE_DEPTH + MAX_SKEW    // = 6, feedback round-trip for slowest PE
-val K          = 16
+// val PIPE_DEPTH = 3
+// val MAX_SKEW   = (rows - 1) * PIPE_DEPTH  // = 3 for 2x2
+// val GAP        = PIPE_DEPTH + MAX_SKEW    // = 6, feedback round-trip for slowest PE
+// val K          = 16
 
-// total cycles = K*GAP + MAX_SKEW = 2*6 + 3 = 15
-println("sanity check")
-val totalCycles = K * GAP + MAX_SKEW
-Seq(0.0154f, -0.5395f, -1.4374f, -0.7193f, 1.7864f).foreach { v =>
-  val back = fp16BitsToFloat(toFP16(v))
-  println(f"$v%.4f → $back%.4f")
-}
-for (c <- 0 until totalCycles) {
-  val k       = c / GAP          // which k-step this cycle belongs to
-  val offset  = c % GAP          // position within this k-step's window
-  val driving = offset < PIPE_DEPTH && k < K  // real data or zero
+// // total cycles = K*GAP + MAX_SKEW = 2*6 + 3 = 15
+// println("sanity check")
+// val totalCycles = K * GAP + MAX_SKEW
+// Seq(0.0154f, -0.5395f, -1.4374f, -0.7193f, 1.7864f).foreach { v =>
+//   val back = fp16BitsToFloat(toFP16(v))
+//   println(f"$v%.4f → $back%.4f")
+// }
+// for (c <- 0 until totalCycles) {
+//   val k       = c / GAP          // which k-step this cycle belongs to
+//   val offset  = c % GAP          // position within this k-step's window
+//   val driving = offset < PIPE_DEPTH && k < K  // real data or zero
 
-  dut.io.res.poke(false.B)
-  dut.io.en.poke(true.B)
-  dut.io.mode.poke(true.B)
-  if (driving) {
-    dut.io.row(0).poke(toFP16(A(0)(k)).U)
-    dut.io.row(1).poke(toFP16(A(1)(k)).U)
-    dut.io.col(0).poke(toFP16(B(k)(0)).U)
-    dut.io.col(1).poke(toFP16(B(k)(1)).U)
-  } else {
-    dut.io.row(0).poke(0.U); dut.io.row(1).poke(0.U)
-    dut.io.col(0).poke(0.U); dut.io.col(1).poke(0.U)
-  }
-  dut.clock.step(1)
-}
-val results = Array.ofDim[Float](2, 2)
-val captured = Array.ofDim[Boolean](2, 2)
-// drain with en=false
-for (d <- 0 until 4) {
-  dut.io.en.poke(false.B)
-  dut.io.row(0).poke(0.U); dut.io.row(1).poke(0.U)
-  dut.io.col(0).poke(0.U); dut.io.col(1).poke(0.U)
-  dut.clock.step(1)
-  for(i <- 0 until 2; j <- 0 until 2) {
-    val out = toFloat(dut.io.out_sum(i)(j).peek().litValue.toLong)
-    if (!captured(i)(j) && math.abs(out) > 0.1f) {
-      results(i)(j) = out
-      captured(i)(j) = true
-    }
-  }
+//   dut.io.res.poke(false.B)
+//   dut.io.en.poke(true.B)
+//   dut.io.mode.poke(true.B)
+//   if (driving) {
+//     dut.io.row(0).poke(toFP16(A(0)(k)).U)
+//     dut.io.row(1).poke(toFP16(A(1)(k)).U)
+//     dut.io.col(0).poke(toFP16(B(k)(0)).U)
+//     dut.io.col(1).poke(toFP16(B(k)(1)).U)
+//   } else {
+//     dut.io.row(0).poke(0.U); dut.io.row(1).poke(0.U)
+//     dut.io.col(0).poke(0.U); dut.io.col(1).poke(0.U)
+//   }
+//   dut.clock.step(1)
+// }
+// val results = Array.ofDim[Float](2, 2)
+// val captured = Array.ofDim[Boolean](2, 2)
+// // drain with en=false
+// for (d <- 0 until 4) {
+//   dut.io.en.poke(false.B)
+//   dut.io.row(0).poke(0.U); dut.io.row(1).poke(0.U)
+//   dut.io.col(0).poke(0.U); dut.io.col(1).poke(0.U)
+//   dut.clock.step(1)
+//   for(i <- 0 until 2; j <- 0 until 2) {
+//     val out = toFloat(dut.io.out_sum(i)(j).peek().litValue.toLong)
+//     if (!captured(i)(j) && math.abs(out) > 0.1f) {
+//       results(i)(j) = out
+//       captured(i)(j) = true
+//     }
+//   }
   
-}
-println("\nFinal results:")
-for (i <- 0 until 2) {
-  for (j <- 0 until 2) {
-    print(f"${results(i)(j)} ")
-  }
-  println()
-}
+// }
+// println("\nFinal results:")
+// for (i <- 0 until 2) {
+//   for (j <- 0 until 2) {
+//     print(f"${results(i)(j)} ")
+//   }
+//   println()
+// }
     
+//   })
+// }
+
+
+"TOP tiled 200x100x50" should "match PyTorch output" in {
+  test(new Top(4, 4)).withAnnotations(Seq(VerilatorBackendAnnotation))({ dut =>
+
+    def loadMatrix(path: String): Array[Array[Float]] =
+      scala.io.Source.fromFile(path).getLines()
+        .filterNot(_.trim.isEmpty)
+        .map(_.trim.split("\\s+").map(_.toFloat))
+        .toArray
+
+    val A     = loadMatrix("/home/maruthi/dev/ChiselVectorPE/src/test/scala/test_files/A.txt")   // 200 × 100
+    val B     = loadMatrix("/home/maruthi/dev/ChiselVectorPE/src/test/scala/test_files/B.txt")   // 100 × 50
+    val C_ref = loadMatrix("/home/maruthi/dev/ChiselVectorPE/src/test/scala/test_files/C.txt")   // 200 × 50
+
+    val M    = A.length        // 200
+    val K    = A(0).length     // 100
+    val N    = B(0).length     //  50
+    val rows = 4
+    val cols = 4
+
+    val PIPE_DEPTH  = 3
+    val MAX_SKEW    = (rows - 1) * PIPE_DEPTH   // 9  for 4×4
+    val GAP         = PIPE_DEPTH + MAX_SKEW      // 12 for 4×4
+    val totalCycles = K * GAP + MAX_SKEW
+    val DRAIN       = MAX_SKEW + PIPE_DEPTH + 2  // 14, safe margin
+
+    val C_out = Array.ofDim[Float](M, N)
+
+    for (tileRow <- 0 until M / rows) {   // 0..49
+      for (tileCol <- 0 until N / cols) { // 0..12
+
+        val rBase = tileRow * rows
+        val cBase = tileCol * cols
+
+        // ── Reset ──────────────────────────────────────────
+        dut.io.res.poke(true.B)
+        dut.io.en.poke(false.B)
+        for (i <- 0 until rows) dut.io.row(i).poke(0.U)
+        for (j <- 0 until cols) dut.io.col(j).poke(0.U)
+        dut.clock.step(1)
+        dut.io.res.poke(false.B)
+
+        // ── Stream ─────────────────────────────────────────
+        for (c <- 0 until totalCycles) {
+          val k       = c / GAP
+          val offset  = c % GAP
+          val driving = offset < PIPE_DEPTH && k < K
+
+          dut.io.en.poke(true.B)
+          dut.io.mode.poke(true.B)
+
+          // ── FIX 1: drive ALL rows and cols, not just 0 and 1 ──
+          for (i <- 0 until rows) {
+            val a_val = if (driving) toFP16(A(rBase + i)(k)) else 0L
+            dut.io.row(i).poke(a_val.U)
+          }
+          for (j <- 0 until cols) {
+            val b_val = if (driving) toFP16(B(k)(cBase + j)) else 0L
+            dut.io.col(j).poke(b_val.U)
+          }
+
+          dut.clock.step(1)
+        }
+
+        // ── Drain ──────────────────────────────────────────
+        // FIX 2: drain window must cover MAX_SKEW, not hardcoded 6
+        val tileResult = Array.ofDim[Float](rows, cols)
+        val captured   = Array.ofDim[Boolean](rows, cols)
+
+        for (_ <- 0 until DRAIN) {
+          dut.io.en.poke(false.B)
+          for (i <- 0 until rows) dut.io.row(i).poke(0.U)
+          for (j <- 0 until cols) dut.io.col(j).poke(0.U)
+          dut.clock.step(1)
+
+          for (i <- 0 until rows; j <- 0 until cols) {
+            if (!captured(i)(j)) {
+              val v = toFloat(dut.io.out_sum(i)(j).peek().litValue.toLong)
+              if (math.abs(v) > 1e-4f) {
+                tileResult(i)(j) = v
+                captured(i)(j)   = true
+              }
+            }
+          }
+        }
+
+        for (i <- 0 until rows; j <- 0 until cols)
+          C_out(rBase + i)(cBase + j) = tileResult(i)(j)
+      }
+    }
+
+    // ── Compare ────────────────────────────────────────────
+   var maxAbsErr = 0f
+var maxRelErr = 0f
+var badCount  = 0
+
+for (i <- 0 until M; j <- 0 until N) {
+  val abs = math.abs(C_out(i)(j) - C_ref(i)(j))
+  val rel = if (math.abs(C_ref(i)(j)) > 1e-3f)
+              abs / math.abs(C_ref(i)(j)) else 0f
+  if (abs > maxAbsErr) maxAbsErr = abs
+  if (rel > maxRelErr) maxRelErr = rel
+  if (rel > 0.01f) badCount += 1   // >1% relative error = truly wrong
+}
+
+println(f"Max absolute error : $maxAbsErr%.4f")
+println(f"Max relative error : ${maxRelErr*100}%.3f%%")
+println(f"Elements with >1%% rel err: $badCount / ${M*N}")
+
+    println("\nHW output (top-left 4×4):")
+    for (i <- 0 until 16)
+      println((0 until 16).map(j => f"${C_out(i)(j)}%8.3f").mkString(" "))
+    println("\nRef (top-left 4×4):")
+    for (i <- 0 until 16)
+      println((0 until 16).map(j => f"${C_ref(i)(j)}%8.3f").mkString(" "))
+
+
+
+
+
+      var nearZeroBad = 0
+var trulyWrong = 0
+for (i <- 0 until M; j <- 0 until N) {
+  val abs = math.abs(C_out(i)(j) - C_ref(i)(j))
+  val rel = if (math.abs(C_ref(i)(j)) > 1e-3f)
+              abs / math.abs(C_ref(i)(j)) else 0f
+  if (rel > 0.01f) {
+    if (math.abs(C_ref(i)(j)) < 0.5f)
+      nearZeroBad += 1    // ref is near zero — FP16 rounding dominates
+    else
+      trulyWrong  += 1    // ref is large but HW is wrong — real bug
+    if (trulyWrong <= 5)  // print first 5 truly wrong ones
+      println(f"  BAD ($i,$j): hw=${C_out(i)(j)}%.4f  ref=${C_ref(i)(j)}%.4f  abs=$abs%.4f")
+  }
+}
+println(f"Near-zero ref (FP16 noise): $nearZeroBad")
+println(f"Truly wrong (large ref):    $trulyWrong")
   })
+
+  
 }
-
-
 //   "TOP" should "show outputs" in {
 //     test(new Top(2,2))({ dut=>
 

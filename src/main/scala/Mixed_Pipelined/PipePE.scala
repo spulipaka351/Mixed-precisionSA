@@ -42,7 +42,7 @@ class PipePE extends Module {
   val fp_man_a_11b = Cat(hidden_a, man_a)
   val fp_man_b_11b = Cat(hidden_b, man_b)
   val toggle       = RegInit(false.B)
-  when(io.mode){
+  when(~io.mode){
     toggle := ~toggle
   }.otherwise{
     toggle := false.B

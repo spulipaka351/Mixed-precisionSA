@@ -42,11 +42,11 @@ class PipePE extends Module {
   val fp_man_a_11b = Cat(hidden_a, man_a)
   val fp_man_b_11b = Cat(hidden_b, man_b)
   val toggle       = RegInit(false.B)
-  when(~io.mode){
-    toggle := ~toggle
-  }.otherwise{
-    toggle := false.B
-  }
+  when(!io.mode) {
+  toggle := ~toggle   // only toggle in INT8 mode
+}.otherwise {
+  toggle := false.B   // FP16: always hold false
+}
 
   val high_int_a = io.in_a(15, 8).asSInt
   val low_int_a  = io.in_a(7, 0).asSInt

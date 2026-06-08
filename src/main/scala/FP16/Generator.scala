@@ -1,34 +1,35 @@
-package Mixed
+package FP16
+
 
 import chisel3._
 
 object ElaboratePE extends App {
-  println("Generating Verilog for mixedPE...")
+  println("Generating Verilog for FP16 PE...")
   (new chisel3.stage.ChiselStage).emitVerilog(
-    new mixedPE(), 
-    Array("--target-dir", "verilog_output")
+    new PE_FP16(width = 16), 
+    Array("--target-dir", "FP16")
   )
   println("Done! Check the 'verilog_output' folder.")
 }
 
 object ElaborateMixedSA extends App {
-  println("Generating Verilog for MixedSA (4x4)...")
+  println("Generating Verilog for FP16 (4x4)...")
   // You can change the 4, 4 parameters to whatever grid size you need
   (new chisel3.stage.ChiselStage).emitVerilog(
-    new MixedSA(4, 4), 
-    Array("--target-dir", "verilog_output")
+    new SA_FP16(4, 4, 16), 
+    Array("--target-dir", "FP16")
   )
   println("Done! Check the 'verilog_output' folder.")
 }
 
 
 object ElaborateTopSA extends App {
-  println("Generating Verilog for TopMixedSA (4x4)...")
+  println("Generating Verilog for TopMixedSA (64x64)...")
   // You can change the 64, 64 parameters to whatever grid size you need
   (new chisel3.stage.ChiselStage).emitVerilog(
-    new TopMixedSA(4, 4), 
-    Array("--target-dir", "mixed_unpipe")
+    new TopSAFP(64, 64,16), 
+    Array("--target-dir", "FP16")
   )
-  println("Done! Check the 'mixed_opt_64' folder.")
+  println("Done! Check the 'verilog_output' folder.")
 }
 

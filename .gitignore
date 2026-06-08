@@ -21,9 +21,9 @@ test_run_dir/
 .vscode/
 .bsp/
 .metals/
+.bloop/
 
-#python
-
+# Python
 python/venv/
 python/.venv/
 python/env/

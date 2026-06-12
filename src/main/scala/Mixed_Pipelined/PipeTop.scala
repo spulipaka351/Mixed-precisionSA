@@ -23,7 +23,7 @@ class StridedSkewBuffers(val n: Int, val width: Int, val stride: Int) extends Mo
 
 class Top(val rows: Int, val cols: Int) extends Module {
 
-  // PipePE pipeline depth — must match ShiftRegister depth in PipePE.out_a/out_b
+
   val PIPE_DEPTH = 3
 
   val io = IO(new Bundle {
@@ -31,9 +31,9 @@ class Top(val rows: Int, val cols: Int) extends Module {
     val en   = Input(Bool())
     val mode = Input(Bool())               // false=INT8, true=FP16
     val load_bias = Input(Bool())          // load bias values when true, else normal op
-    val bias = Input(Vec(cols, UInt(32.W)))  // bias values for each output row
-    val row     = Input(Vec(rows, UInt(16.W)))   // A matrix column slice
-    val col     = Input(Vec(cols, UInt(16.W)))   // B matrix row slice
+    val bias = Input(Vec(cols, UInt(32.W)))  
+    val row     = Input(Vec(rows, UInt(16.W)))  
+    val col     = Input(Vec(cols, UInt(16.W)))   
 
     val out_sum = Output(Vec(rows, Vec(cols, UInt(32.W))))
   })

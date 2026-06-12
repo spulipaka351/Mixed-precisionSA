@@ -1,12 +1,4 @@
-// ─────────────────────────────────────────────────────────────────
-// NF4Dequant.scala
-// Unpacks 4 NF4 indices from a 16-bit word, looks each up in the
-// NF4 table (FP16 bit-patterns), then scales by a FP16 scale factor
-// using a lightweight inline FP16 multiplier — no external library.
-//
-// Output: 4 FP16 values, one per NF4 nibble.
-// Latency: 1 cycle (registered output).
-// ─────────────────────────────────────────────────────────────────
+
 package Pipe
 
 import chisel3._
@@ -69,10 +61,7 @@ def fp16Mul(a: UInt, b: UInt): UInt = {
     val out        = Output(Vec(4, UInt(16.W)))  // 4 × FP16 dequantized
   })
 
-  // ── NF4 lookup table: IEEE FP16 bit-patterns ──────────────────
- // ── CORRECTED NF4 lookup table: IEEE FP16 bit-patterns ──────────────────
-// ── NF4 lookup table: IEEE FP16 bit-patterns ──────────────────
-  // ── NF4 lookup table: IEEE FP16 bit-patterns ──────────────────
+
   val nf4Lut = VecInit(Seq(
     "hBC00".U(16.W),  //  0: -1.0000000
     "hB991".U(16.W),  //  1: -0.6961928
@@ -91,7 +80,7 @@ def fp16Mul(a: UInt, b: UInt): UInt = {
     "h39C8".U(16.W),  // 14: +0.7229568
     "h3C00".U(16.W)   // 15: +1.0000000
   ))
-  // ── Unpack 4 nibbles from packed_nf4 ──────────────────────────
+  
   val idx = Wire(Vec(4, UInt(4.W)))
   idx(0) := io.packed_nf4(3,  0)
   idx(1) := io.packed_nf4(7,  4)
@@ -101,8 +90,7 @@ def fp16Mul(a: UInt, b: UInt): UInt = {
   for (k <- 0 until 4) {
     val lut_val = nf4Lut(idx(k))
     val result  = fp16Mul(lut_val, io.scale)
-    // gate exactly like ShiftRegister in skew_b
-    io.out(k) := result // hold 0 when not enabled
+    io.out(k) := result 
       
   }
 }

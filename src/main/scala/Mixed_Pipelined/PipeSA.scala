@@ -28,12 +28,6 @@ class PipeSA(val rows: Int, val cols: Int, val PIPE_DEPTH: Int = 3) extends Modu
       val fb_reg1 = RegNext(Mux(io.res, 0.U, Mux(io.en, pe.io.out, 0.U)), 0.U(32.W))
       val fb_reg2 = RegNext(Mux(io.res, 0.U, Mux(io.en, fb_reg1,   0.U)), 0.U(32.W))
       val fb_reg3 = RegNext(Mux(io.res, 0.U, Mux(io.en, fb_reg2,   0.U)), 0.U(32.W))
-      
-      // ──────────────────────────────────────────────────────────────────
-      // THE FIX:
-      // Delay the global load_bias signal to perfectly match the arrival 
-      // of the valid data wavefront for this specific PE (i, j).
-      // ──────────────────────────────────────────────────────────────────
       val delayCycles = (i + j) * PIPE_DEPTH
       val local_load_bias = ShiftRegister(io.load_bias, delayCycles, false.B, io.en)
 
